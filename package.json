@@ -1,0 +1,64 @@
+{
+  "name": "@satoshipay/stellar-sep-10",
+  "version": "0.0.0",
+  "author": "SatoshiPay Ltd (https://satoshipay.io/)",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "tslint --project .",
+    "precommit": "lint-staged",
+    "prepare": "npm run build",
+    "prettier": "prettier --write 'src/**.ts' *.md",
+    "test": "ava",
+    "test:ci": "ava --tap | tap-xunit > ava.xml",
+    "posttest": "npm run lint"
+  },
+  "peerDependencies": {
+    "stellar-sdk": "^0.15.4"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "debug": "^4.1.1"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.2",
+    "ava": "^1.2.1",
+    "husky": "^1.3.1",
+    "lint-staged": "^8.1.4",
+    "prettier": "^1.16.4",
+    "stellar-sdk": "^0.15.4",
+    "tap-xunit": "^2.3.0",
+    "ts-node": "^8.0.2",
+    "tslint": "^5.12.1",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.3.3"
+  },
+  "ava": {
+    "compileEnhancements": false,
+    "extensions": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ]
+  },
+  "files": [
+    "dist/"
+  ],
+  "lint-staged": {
+    "ignore": [
+      "**/*.yml"
+    ],
+    "linters": {
+      "*": [
+        "prettier --write",
+        "git add"
+      ]
+    }
+  },
+  "prettier": {
+    "semi": false
+  }
+}
