@@ -1,13 +1,21 @@
 import test from "ava"
 import { Server } from "stellar-sdk"
-import { fetchWebAuthEndpointURL } from "../src/index"
+import { fetchWebAuthData } from "../src/index"
 
-test("fetchWebAuthEndpointURL() can fetch the stellarport.io auth endpoint URL", async t => {
+test("fetchWebAuthData() can fetch the stellarport.io auth endpoint URL", async t => {
   const horizon = new Server("https://horizon.stellar.org/")
-  const transferServerURL = await fetchWebAuthEndpointURL(
+  const webauth = await fetchWebAuthData(
     horizon,
     "GBVOL67TMUQBGL4TZYNMY3ZQ5WGQYFPFD5VJRWXR72VA33VFNL225PL5"
   )
 
-  t.is(transferServerURL, "https://api.stellarport.io/Authentication")
+  if (!webauth) {
+    return t.fail("Could not fetch all web auth data.")
+  }
+
+  t.is(webauth.endpointURL, "https://api.stellarport.io/Authentication")
+  t.is(
+    webauth.signingKey,
+    "GABWHTAVRYF2MCNDR5YC5SC3JTZQBGDZ3HKI4QAREV5533VU43W4HJUX"
+  )
 })
