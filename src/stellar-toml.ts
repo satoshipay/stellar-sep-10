@@ -1,6 +1,12 @@
 import { Server, StellarTomlResolver } from "stellar-sdk"
 import { debug } from "./logger"
 
+export interface WebauthData {
+  domain: string
+  endpointURL: string
+  signingKey: string
+}
+
 interface StellarTomlData {
   [key: string]: any
 }
@@ -20,18 +26,18 @@ export function getWebAuthEndpointURL(
 export async function fetchWebAuthData(
   horizon: Server,
   issuerAccountID: string
-) {
+): Promise<WebauthData | null> {
   const account = await horizon.loadAccount(issuerAccountID)
-  const domainName = (account as any).home_domain
+  const domain = (account as any).home_domain
 
-  if (!domainName) {
+  if (!domain) {
     debug(
       `Web auth endpoint cannot be located. Issuing account has no home_domain: ${issuerAccountID}`
     )
     return null
   }
 
-  const stellarTomlData = await StellarTomlResolver.resolve(domainName)
+  const stellarTomlData = await StellarTomlResolver.resolve(domain)
   const endpointURL = getWebAuthEndpointURL(stellarTomlData)
   const signingKey = getServiceSigningKey(stellarTomlData)
 
@@ -40,6 +46,7 @@ export async function fetchWebAuthData(
   }
 
   return {
+    domain,
     endpointURL,
     signingKey
   }
