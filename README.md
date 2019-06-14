@@ -45,6 +45,51 @@ const endpointURL = getWebAuthEndpointURL(stellarToml)
 const signingKey = getServiceSigningKey(stellarToml)
 ```
 
+### Authenticate - The simple way
+
+```ts
+import { Keypair } from "stellar-sdk"
+import { authenticate } from "@satoshipay/stellar-sep-10"
+
+// see above how to obtain `webauth`
+const accountKeypair = Keypair.fromSecret("S...")
+
+const jwt = await authenticate(
+  webauth.endpointURL,
+  webauth.signingKey,
+  accountKeypair,
+  Network.current()
+)
+```
+
+You can now use `jwt` in HTTP requests for authentication. Use the `Authorization` header:
+
+```
+Authorization: Bearer ${jwt}
+```
+
+### Authenticate - The manual way
+
+```ts
+import { Keypair } from "stellar-sdk"
+import { authenticate } from "@satoshipay/stellar-sep-10"
+
+// see above how to obtain `webauth`
+const accountKeypair = Keypair.fromSecret("S...")
+
+const transaction = await fetchChallenge(
+  webauth.endpointURL,
+  webauth.signingKey,
+  accountKeypair.publicKey()
+)
+
+transaction.sign(accountKeypair)
+
+const jwt = await postResponse(webauth.endpointURL, transaction)
+```
+
+Use this slightly less convenient way if you want the user to review the transaction before signing it.
+
 ## License
 
 GPL v3
