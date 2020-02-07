@@ -4,7 +4,7 @@ import { debug } from "./logger"
 
 function assertChallengeOK(
   challenge: Transaction,
-  serviceSigningKey: string,
+  serviceSigningKey: string | null,
   localPublicKey: string
 ) {
   debug("Checking challenge transaction...", {
@@ -12,9 +12,11 @@ function assertChallengeOK(
     serviceSigningKey
   })
 
-  const serviceSigningKeypair = Keypair.fromPublicKey(serviceSigningKey)
+  const serviceSigningKeypair = serviceSigningKey
+    ? Keypair.fromPublicKey(serviceSigningKey)
+    : null
 
-  if (challenge.source !== serviceSigningKey) {
+  if (serviceSigningKey && challenge.source !== serviceSigningKey) {
     throw Error(
       "Challenge source account does not match the remote signing account."
     )
@@ -51,6 +53,7 @@ function assertChallengeOK(
   }
 
   if (
+    serviceSigningKeypair &&
     !challenge.signatures.some(signature =>
       signature.hint().equals(serviceSigningKeypair.signatureHint())
     )
@@ -76,7 +79,7 @@ function getNonceOperation(challenge: Transaction): Buffer {
 
 export async function fetchChallenge(
   endpointURL: string,
-  serviceSigningKey: string,
+  serviceSigningKey: string | null,
   localPublicKey: string
 ): Promise<Transaction> {
   debug(`Fetching web auth challenge from ${endpointURL}...`)

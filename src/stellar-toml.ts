@@ -4,7 +4,7 @@ import { debug } from "./logger"
 export interface WebauthData {
   domain: string
   endpointURL: string
-  signingKey: string
+  signingKey: string | null
 }
 
 interface StellarTomlData {
