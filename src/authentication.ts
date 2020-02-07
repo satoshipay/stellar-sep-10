@@ -108,12 +108,22 @@ export async function postResponse(
       .toXDR()
       .toString("base64")
   }
+
   let response: AxiosResponse<any>
   try {
-    response = await axios(endpointURL, { method: "POST", data })
+    response = await axios(endpointURL, {
+      method: "POST",
+      headers: {
+        // SEP-10 defines a strict "application/json" content type, without charset
+        "Content-Type": "application/json"
+      },
+      data
+    })
   } catch (error) {
     debug(`Authentication at ${endpointURL} failed:`, error)
-    throw Error(`Web authentication failed: ${error.message}`)
+    throw Object.assign(Error(`Web authentication failed: ${error.message}`), {
+      response: error.response
+    })
   }
 
   if (!response.data || typeof response.data.token !== "string") {
@@ -121,7 +131,8 @@ export async function postResponse(
       response.data && response.data.error
         ? response.data.error
         : "No token sent."
-    throw Error(`Web auth failed: ${message}`)
+
+    throw Error(`Web authentication failed: ${message}`)
   }
 
   return response.data.token
