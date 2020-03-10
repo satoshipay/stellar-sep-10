@@ -18,7 +18,7 @@ function assertChallengeOK(
 
   if (serviceSigningKey && challenge.source !== serviceSigningKey) {
     throw Error(
-      "Challenge source account does not match the remote signing account."
+      "Challenge source account does not match the remote signing account: " + challenge.source
     )
   }
   if (String(challenge.sequence) !== "0") {
