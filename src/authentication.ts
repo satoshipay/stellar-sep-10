@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from "axios"
-import { Keypair, Network, Operation, Transaction } from "stellar-sdk"
+import { Keypair, Networks, Operation, Transaction } from "stellar-sdk"
 import { debug } from "./logger"
 
 function assertChallengeOK(
@@ -80,7 +80,8 @@ function getNonceOperation(challenge: Transaction): Buffer {
 export async function fetchChallenge(
   endpointURL: string,
   serviceSigningKey: string | null,
-  localPublicKey: string
+  localPublicKey: string,
+  network: Networks
 ): Promise<Transaction> {
   debug(`Fetching web auth challenge from ${endpointURL}...`)
   let response: AxiosResponse<any>
@@ -95,7 +96,7 @@ export async function fetchChallenge(
   }
 
   debug("Fetched web auth challenge:", response.data)
-  const transaction = new Transaction(response.data.transaction)
+  const transaction = new Transaction(response.data.transaction, network)
   assertChallengeOK(transaction, serviceSigningKey, localPublicKey)
 
   return transaction
@@ -145,15 +146,15 @@ export async function authenticate(
   endpointURL: string,
   serviceSigningKey: string,
   keypair: Keypair,
-  network: Network
+  network: Networks
 ) {
   const transaction = await fetchChallenge(
     endpointURL,
     serviceSigningKey,
-    keypair.publicKey()
+    keypair.publicKey(),
+    network
   )
 
-  Network.use(network)
   transaction.sign(keypair)
 
   const token = await postResponse(endpointURL, transaction)
